@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adi Bhalla</title>
+    <meta name="description" content="Adi Bhalla — strategy, civic tech, and writing. Projects, book reviews, and essays on politics and culture.">
+    <meta property="og:title" content="Adi Bhalla">
+    <meta property="og:description" content="Strategy, civic tech, and writing. Projects, book reviews, and essays on politics and culture.">
+    <meta property="og:type" content="website">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        body {
+            background-color: #faf7f2;
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: #1e3a5f;
+        }
+
+        /* ── Paint flecks canvas (fixed background texture) ─────── */
+        #flecks {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── All sections sit above canvas ──────────────────────── */
+        .section { position: relative; z-index: 1; }
+
+        /* ══════════════════════════════════════════════════════════
+           LANDING
+        ══════════════════════════════════════════════════════════ */
+        #landing {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .landing-inner {
+            width: 100%;
+            max-width: 680px;
+            padding: 48px 64px;
+        }
+
+        .heading {
+            font-size: 64px;
+            font-weight: 700;
+            color: #1e3a5f;
+            line-height: 1.1;
+            margin-bottom: 8px;
+            min-height: 72px;
+        }
+
+        /* Blinking cursor */
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 0.7em;
+            background: #1e3a5f;
+            margin-left: 3px;
+            vertical-align: middle;
+            border-radius: 1px;
+            animation: blink 0.75s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0; }
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, #8fa4c2 40%, transparent);
+            margin: 28px 0 40px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .divider.show { opacity: 1; }
+
+        /* ── Nav bullets ─────────────────────────────────────────── */
+        .bullets {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .bullet {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            cursor: pointer;
+        }
+
+        .bullet.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .bullet-dot {
+            font-size: 18px;
+            color: #8fa4c2;
+            flex-shrink: 0;
+            transition: color 0.2s ease;
+        }
+
+        .bullet-label {
+            font-size: 32px;
+            font-weight: 400;
+            font-style: italic;
+            color: #1e3a5f;
+            border-bottom: 1px solid transparent;
+            padding-bottom: 2px;
+            transition: border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .bullet:hover .bullet-dot  { color: #1e3a5f; }
+        .bullet:hover .bullet-label { border-bottom-color: #8fa4c2; }
+
+        /* ══════════════════════════════════════════════════════════
+           CONTENT SECTIONS (shared)
+        ══════════════════════════════════════════════════════════ */
+        .content-section {
+            display: none;
+            min-height: 100vh;
+            padding: 64px 0;
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+
+        .content-section.active  { display: block; }
+        .content-section.visible { opacity: 1; }
+
+        .section-inner {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 64px;
+        }
+
+        #about .section-inner {
+            max-width: 1100px;
+        }
+
+        .back-link {
+            display: inline-block;
+            font-size: 14px;
+            color: #8fa4c2;
+            cursor: pointer;
+            margin-bottom: 52px;
+            letter-spacing: 0.04em;
+            transition: color 0.2s ease;
+            text-decoration: none;
+            font-style: normal;
+        }
+
+        .back-link:hover { color: #1e3a5f; }
+
+        .section-title {
+            font-size: 44px;
+            font-weight: 700;
+            font-style: italic;
+            color: #1E5B5F;
+            margin-bottom: 36px;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           ABOUT
+        ══════════════════════════════════════════════════════════ */
+        .about-layout {
+            display: flex;
+            gap: 52px;
+            align-items: flex-start;
+        }
+
+        /* ── Collage (right side of about) ──────────────────────── */
+        .about-collage {
+            position: relative;
+            width: 400px;
+            height: 520px;
+            flex-shrink: 0;
+        }
+
+        .collage-photo {
+            position: absolute;
+            object-fit: cover;
+            border-radius: 3px;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 18px rgba(30,58,95,0.18);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, z-index 0s;
+        }
+
+        .collage-photo:hover {
+            transform: scale(1.06) rotate(0deg) !important;
+            box-shadow: 0 10px 32px rgba(30,58,95,0.28);
+            z-index: 20 !important;
+        }
+
+        /* ── Photo lightbox ──────────────────────────────────────── */
+        #lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(30, 58, 95, 0.55);
+            backdrop-filter: blur(3px);
+            align-items: center;
+            justify-content: center;
+            cursor: zoom-out;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        #lightbox.open {
+            display: flex;
+            opacity: 1;
+        }
+
+        #lightbox img {
+            max-width: 85vw;
+            max-height: 85vh;
+            object-fit: contain;
+            border-radius: 4px;
+            border: 5px solid #fff;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            cursor: default;
+            transform: scale(0.92);
+            transition: transform 0.25s ease;
+        }
+
+        #lightbox.open img {
+            transform: scale(1);
+        }
+
+        /* Each photo: width × height, top, left, rotate */
+        /* To adjust: change top/left to move, rotate() to tilt, width/height to resize */
+        .cp1 { width: 175px; height: 215px; top: 0px;   left: 0px;   transform: rotate(-2.5deg); z-index: 4; }
+        .cp2 { width: 205px; height: 190px; top: 20px;  left: 160px; transform: rotate(1.8deg);  z-index: 3; }
+        .cp3 { width: 180px; height: 200px; top: 200px; left: 15px;  transform: rotate(1.2deg);  z-index: 5; }
+        .cp4 { width: 165px; height: 195px; top: 190px; left: 200px; transform: rotate(-2deg);   z-index: 2; }
+        .cp5 { width: 195px; height: 185px; top: 360px; left: 90px;  transform: rotate(0.8deg);  z-index: 6; }
+
+        .about-text {
+            font-size: 19px;
+            line-height: 1.85;
+            color: #2a4060;
+        }
+
+        .about-text p + p { margin-top: 22px; }
+
+        .cv-link {
+            font-style: italic;
+            color: inherit;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .cv-link:hover { opacity: 0.7; }
+
+        @media (max-width: 700px) {
+            .about-layout { flex-direction: column; gap: 32px; }
+            .about-collage { width: 100%; height: 320px; }
+            .cp1 { width: 130px; height: 160px; top: 0;    left: 0;   }
+            .cp2 { width: 155px; height: 145px; top: 15px; left: 120px; }
+            .cp3 { width: 130px; height: 150px; top: 150px; left: 10px; }
+            .cp4 { width: 120px; height: 145px; top: 145px; left: 150px; }
+            .cp5 { width: 140px; height: 135px; top: 270px; left: 65px; }
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           PROJECTS
+        ══════════════════════════════════════════════════════════ */
+        .project-card {
+            max-width: 680px;
+            margin-bottom: 60px;
+        }
+
+        .project-title {
+            display: inline-block;
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #1e3a5f;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .project-title:hover { color: #8fa4c2; }
+
+        .project-screenshot { cursor: pointer; }
+
+        .project-blurb {
+            font-size: 17px;
+            line-height: 1.75;
+            color: #2a4060;
+            margin-bottom: 24px;
+            max-width: 580px;
+        }
+
+        .project-screenshot {
+            width: 100%;
+            max-width: 660px;
+            border-radius: 5px;
+            border: 1px solid #ddd8cf;
+            margin-bottom: 18px;
+            display: block;
+            box-shadow: 0 2px 12px rgba(30,58,95,0.08);
+        }
+
+        .project-screenshot-placeholder {
+            width: 100%;
+            max-width: 660px;
+            height: 300px;
+            background: linear-gradient(135deg, #e8e2d8, #d8d0c4);
+            border-radius: 5px;
+            border: 1px solid #ddd8cf;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #8a7f72;
+            font-style: italic;
+            letter-spacing: 0.04em;
+        }
+
+        .project-link {
+            font-size: 15px;
+            color: #8fa4c2;
+            text-decoration: none;
+            border-bottom: 1px solid #8fa4c2;
+            padding-bottom: 1px;
+            transition: color 0.2s ease, border-color 0.2s ease;
+            letter-spacing: 0.02em;
+        }
+
+        .project-link:hover {
+            color: #1e3a5f;
+            border-color: #1e3a5f;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           BOOK REVIEWS
+        ══════════════════════════════════════════════════════════ */
+        .books-intro {
+            font-size: 15px;
+            color: #8fa4c2;
+            font-style: italic;
+            margin-bottom: 40px;
+            letter-spacing: 0.02em;
+        }
+
+        .books-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 44px;
+            max-width: 680px;
+        }
+
+        .book-card {
+            display: flex;
+            gap: 28px;
+            align-items: flex-start;
+            background: rgba(143, 164, 194, 0.12);
+            border: 1px solid rgba(143, 164, 194, 0.30);
+            border-radius: 10px;
+            padding: 20px 22px;
+        }
+
+        .book-cover-wrap {
+            width: 100px;
+            flex-shrink: 0;
+            aspect-ratio: 2 / 3;
+            border-radius: 3px;
+            overflow: hidden;
+            box-shadow: 2px 3px 10px rgba(30,58,95,0.12);
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .book-cover-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(160deg, #c4bdb4 0%, #a8a098 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            text-align: center;
+            gap: 6px;
+        }
+
+        .book-cover-placeholder .cover-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #f8f4ef;
+            line-height: 1.3;
+        }
+
+        .book-cover-placeholder .cover-author {
+            font-size: 10px;
+            font-style: italic;
+            color: #e8e2dc;
+        }
+
+        .book-details {
+            flex: 1;
+            padding-top: 2px;
+        }
+
+        .book-title {
+            font-size: 17px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 3px;
+        }
+
+        .book-author {
+            font-size: 14px;
+            font-style: italic;
+            color: #6a7f98;
+            margin-bottom: 10px;
+        }
+
+        .book-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .book-stars {
+            color: #c4a45a;
+            font-size: 14px;
+            letter-spacing: 1.5px;
+        }
+
+        .book-date {
+            font-size: 12px;
+            color: #a0b4c8;
+            letter-spacing: 0.04em;
+        }
+
+        .book-blurb {
+            font-size: 15px;
+            line-height: 1.75;
+            color: #3a5070;
+        }
+
+        .book-genre {
+            display: inline-block;
+            font-size: 11px;
+            font-style: normal;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #8fa4c2;
+            border: 1px solid #c0cfe0;
+            border-radius: 20px;
+            padding: 2px 9px;
+            margin-bottom: 10px;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           WRITING
+        ══════════════════════════════════════════════════════════ */
+        .writing-intro {
+            font-size: 17px;
+            color: #2a4060;
+            margin-bottom: 36px;
+            line-height: 1.6;
+        }
+
+        .writing-subscribe {
+            color: #1e3a5f;
+            font-weight: 700;
+            text-decoration: none;
+            border-bottom: 2px solid #8fa4c2;
+            padding-bottom: 1px;
+            transition: border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .writing-subscribe:hover { border-color: #1e3a5f; }
+
+        .recent-essays-label {
+            font-size: 14px;
+            font-style: bold;
+            letter-spacing: 0.04em;
+            color: #1E5B5F;
+            margin-bottom: 24px;
+        }
+
+        .writing-list {
+            display: flex;
+            flex-direction: column;
+            gap: 36px;
+            max-width: 620px;
+        }
+
+        .writing-item {
+            border-bottom: 1px solid rgba(143, 164, 194, 0.25);
+            padding-bottom: 36px;
+        }
+
+        .writing-item:last-child {
+            border-bottom: none;
+        }
+
+        .writing-title {
+            display: inline-block;
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e3a5f;
+            text-decoration: none;
+            margin-bottom: 6px;
+            transition: color 0.2s ease;
+            line-height: 1.3;
+        }
+
+        .writing-title:hover { color: #8fa4c2; }
+
+        .writing-meta {
+            margin-bottom: 10px;
+        }
+
+        .writing-date {
+            font-size: 12px;
+            color: #a0b4c8;
+            letter-spacing: 0.04em;
+        }
+
+        .writing-blurb {
+            font-size: 16px;
+            line-height: 1.75;
+            color: #3a5070;
+        }
+
+        /* ── Currently reading ───────────────────────────────── */
+        .currently-reading {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 32px;
+            padding: 12px 16px;
+            background: rgba(143, 164, 194, 0.10);
+            border-left: 2px solid #8fa4c2;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .currently-reading-label {
+            font-size: 14px;
+            font-style: italic;
+            color: #1E5B5F;
+            letter-spacing: 0.04em;
+            flex-shrink: 0;
+        }
+
+        .currently-reading-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e3a5f;
+        }
+
+        .currently-reading-author {
+            font-size: 13px;
+            font-style: italic;
+            color: #6a7f98;
+        }
+
+        /* ── Filter rows ──────────────────────────────────────── */
+        .filter-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 32px;
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .filter-row-label {
+            font-size: 12px;
+            font-style: italic;
+            color: #8fa4c2;
+            letter-spacing: 0.04em;
+            flex-shrink: 0;
+            width: 48px;
+        }
+
+        /* ── Genre filter buttons ─────────────────────────────── */
+        .genre-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .genre-btn {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 12px;
+            font-style: italic;
+            color: #8fa4c2;
+            background: none;
+            border: 1px solid #c0cfe0;
+            border-radius: 20px;
+            padding: 4px 14px;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .rating-select {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 13px;
+            color: #1e3a5f;
+            background: none;
+            border: 1px solid #c0cfe0;
+            border-radius: 20px;
+            padding: 4px 28px 4px 14px;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238fa4c2' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            transition: border-color 0.2s ease;
+        }
+
+        .rating-select:focus { outline: none; border-color: #1e3a5f; }
+
+        .genre-btn:hover,
+        .genre-btn.active {
+            background: #1e3a5f;
+            color: #fff;
+            border-color: #1e3a5f;
+        }
+
+        @media (max-width: 480px) {
+            .book-card { flex-direction: column; }
+            .book-cover-wrap { width: 80px; }
+        }
+
+        /* ── Contact bar ─────────────────────────────────────────── */
+        #contact-bar {
+            position: fixed;
+            bottom: 28px;
+            left: 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 10;
+        }
+
+        .contact-label {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 12px;
+            font-style: italic;
+            color: #8fa4c2;
+            letter-spacing: 0.04em;
+        }
+
+        .contact-icon {
+            display: flex;
+            align-items: center;
+            color: #1e3a5f;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .contact-icon:hover { color: #8fa4c2; }
+
+        .contact-icon svg {
+            width: 18px;
+            height: 18px;
+            display: block;
+        }
+
+        /* ── Responsive ──────────────────────────────────────────── */
+        @media (max-width: 720px) {
+            .landing-inner { padding: 36px 36px; }
+            .heading        { font-size: 46px; min-height: 52px; }
+            .bullet-label   { font-size: 26px; }
+            .section-inner  { padding: 0 36px; }
+            .section-title  { font-size: 34px; }
+        }
+
+    </style>
+</head>
+<body>
+    <canvas id="flecks"></canvas>
+
+    <!-- ══ LANDING ══════════════════════════════════════════════ -->
+    <div id="landing" class="section">
+        <div class="landing-inner">
+            <div class="heading">
+                <span id="headingText"></span><span class="cursor" id="cursor"></span>
+            </div>
+
+            <div class="divider" id="divider"></div>
+
+            <ul class="bullets">
+                <li class="bullet" id="b0" onclick="showSection('about')">
+                    <span class="bullet-dot">◦</span>
+                    <span class="bullet-label">About</span>
+                </li>
+                <li class="bullet" id="b1" onclick="showSection('writing')">
+                    <span class="bullet-dot">◦</span>
+                    <span class="bullet-label">Writing</span>
+                </li>
+                <li class="bullet" id="b2" onclick="showSection('projects')">
+                    <span class="bullet-dot">◦</span>
+                    <span class="bullet-label">Projects</span>
+                </li>
+                <li class="bullet" id="b3" onclick="showSection('books')">
+                    <span class="bullet-dot">◦</span>
+                    <span class="bullet-label">Book Reviews</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ══ ABOUT ════════════════════════════════════════════════ -->
+    <div id="about" class="section content-section">
+        <div class="section-inner">
+            <a class="back-link" onclick="showLanding()">← back</a>
+            <div class="section-title">About</div>
+            <div class="about-layout">
+                <div class="about-text">
+                    <p>I'm Adi. I'm 24 years old, and my professional background is in corporate strategy and management consulting. I graduated from Pomona College in May of 2023 as a double major in Mathematics and Politics. <a class="cv-link" href="Aditya_Bhalla_Resume_March_2026.pdf" target="_blank">You can find my full resume here.</a></p>
+                    <p>In my free time, I enjoy thinking about different political and cultural phenomena, as well as reading and writing about them. I also like running, listening to podcasts, and playing intense games of Settlers of Catan.</p>
+                </div>
+                <div class="about-collage">
+                    <!-- cp1–cp5: adjust top/left to reposition, rotate() to tilt, width/height to resize -->
+                    <img class="collage-photo cp1" src="assets/Adi_FirstTimeVoting.jpeg" alt="First time voting">
+                    <img class="collage-photo cp2" src="assets/Adi_Family_Vancouver.jpeg" alt="Family in Vancouver">
+                    <img class="collage-photo cp3" src="assets/Adi_Perbhaat.jpg"          alt="With Perbhaat">
+                    <img class="collage-photo cp4" src="assets/Adi_IceCream.jpg"          alt="Ice cream">
+                    <img class="collage-photo cp5" src="assets/Adi_Ayo_JoJo.jpg"          alt="With Ayo and JoJo">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ PROJECTS ══════════════════════════════════════════════ -->
+    <div id="projects" class="section content-section">
+        <div class="section-inner">
+            <a class="back-link" onclick="showLanding()">← back</a>
+            <div class="section-title">Projects</div>
+
+            <div class="project-card">
+                <a class="project-title" href="https://2026elections.netlify.app" target="_blank">Your Ballot 2026 ↗</a>
+                <p class="project-blurb">
+                    A civic tech web app that helps voters find their congressional and gubernatorial races ahead of the 2026 elections. Enter your address to instantly see who's running in your district, as well as live prediction market odds pulled directly from Kalshi in real time.
+                </p>
+                <a href="https://2026elections.netlify.app" target="_blank">
+                    <img
+                        class="project-screenshot"
+                        src="assets/voter-guide.png"
+                        alt="Your Ballot 2026 — screenshot"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                    >
+                    <div class="project-screenshot-placeholder" style="display:none;">
+                        [ screenshot — add assets/voter-guide.png ]
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ WRITING ══════════════════════════════════════════════ -->
+    <div id="writing" class="section content-section">
+        <div class="section-inner">
+            <a class="back-link" onclick="showLanding()">← back</a>
+            <div class="section-title">Writing</div>
+            <p class="writing-intro">Essays and posts from my Substack — <a class="writing-subscribe" href="https://adibhalla.substack.com" target="_blank">subscribe here ↗</a></p>
+
+            <p class="recent-essays-label">Recent Essays:</p>
+
+            <div class="writing-list">
+
+                <div class="writing-item">
+                    <a class="writing-title" href="https://adibhalla.substack.com/p/a-growing-number-of-ucsd-students" target="_blank">A Growing Number of UCSD Students Are Taking Middle School Math. It's a Policy Failure. ↗</a>
+                    <div class="writing-meta"><span class="writing-date">March 2026</span></div>
+                    <p class="writing-blurb">UCSD has seen a massive surge in students enrolling in remedial math. Exploring why it's happened can shape how we think about equity in education.</p>
+                </div>
+
+                <div class="writing-item">
+                    <a class="writing-title" href="https://adibhalla.substack.com/p/reflections-on-marty-supreme-and" target="_blank">Reflections on Marty Supreme and American Hustle Culture ↗</a>
+                    <div class="writing-meta"><span class="writing-date">Jan 2026</span></div>
+                    <p class="writing-blurb">Disclaimer: this essay contains spoilers for Marty Supreme and is best read after seeing the movie.</p>
+                </div>
+
+                <div class="writing-item">
+                    <a class="writing-title" href="https://adibhalla.substack.com/p/the-politics-of-grief" target="_blank">The Politics of Grief ↗</a>
+                    <div class="writing-meta"><span class="writing-date">Aug 2025</span></div>
+                    <p class="writing-blurb">In the U.S., the chance to grieve is a privilege. How does it differ from other privileges, and how is grieving a political act?</p>
+                </div>
+
+                <div class="writing-item">
+                    <a class="writing-title" href="https://adibhalla.substack.com/p/zohran-mamdanis-victory-wasnt-about" target="_blank">Zohran Mamdani's Victory Wasn't About Socialism. It Was About Showing Up. ↗</a>
+                    <div class="writing-meta"><span class="writing-date">Jul 2025</span></div>
+                    <p class="writing-blurb">Mamdani's campaign was a masterclass in meeting voters where they are. Democrats should be taking notes.</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ BOOK REVIEWS ══════════════════════════════════════════ -->
+    <div id="books" class="section content-section">
+        <div class="section-inner">
+            <a class="back-link" onclick="showLanding()">← back</a>
+            <div class="section-title">Book Reviews</div>
+
+            <div class="currently-reading">
+                <span class="currently-reading-label">Currently Reading:</span>
+                <span class="currently-reading-title">The Singularity is Nearer: When We Merge With AI</span>
+                <span class="currently-reading-author">— Ray Kurzweil</span>
+            </div>
+
+            <div class="filter-rows">
+                <div class="filter-row">
+                    <span class="filter-row-label">Genre:</span>
+                    <div class="genre-filters" id="genreFilters">
+                        <button class="genre-btn active" data-genre="all">All</button>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <span class="filter-row-label">Rating:</span>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <button class="genre-btn active" id="ratingAllBtn">All</button>
+                        <select class="rating-select" id="ratingFilter">
+                            <option value="" disabled selected>★ stars</option>
+                            <option value="5">★★★★★</option>
+                            <option value="4">★★★★☆</option>
+                            <option value="3">★★★☆☆</option>
+                            <option value="2">★★☆☆☆</option>
+                            <option value="1">★☆☆☆☆</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="books-grid" id="booksGrid">
+
+                <!-- Book: Betrayal -->
+                <div class="book-card" data-genre="thriller" data-rating="4">
+                    <div class="book-cover-wrap">
+                        <img
+                            class="book-cover"
+                            src="assets/covers/betrayal.jpg"
+                            alt="Betrayal cover"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                        >
+                        <div class="book-cover-placeholder" style="display:none;">
+                            <span class="cover-title">Betrayal</span>
+                            <span class="cover-author">Omar Shahid Hamid</span>
+                        </div>
+                    </div>
+                    <div class="book-details">
+                        <div class="book-title">Betrayal</div>
+                        <div class="book-author">Omar Shahid Hamid</div>
+                        <span class="book-genre">Thriller</span>
+                        <div class="book-meta">
+                            <span class="book-stars">★★★★☆</span>
+                            <span class="book-date">March 2026</span>
+                        </div>
+                        <p class="book-blurb">
+                            A pretty heartbreaking love story wrapped up in a mystery thriller. The slow start made this take a little while to get into, but it became a fun read. Shorter novel that, once I was invested, was challenging to put down.
+                        </p>
+                    </div>
+                </div>
+
+
+                <!-- Book: Apple in China -->
+                <div class="book-card" data-genre="nonfiction" data-rating="5">
+                    <div class="book-cover-wrap">
+                        <img
+                            class="book-cover"
+                            src="assets/covers/apple_in_china.jpg"
+                            alt="Apple in China cover"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                        >
+                        <div class="book-cover-placeholder" style="display:none;">
+                            <span class="cover-title">Apple in China</span>
+                            <span class="cover-author">Patrick McGee</span>
+                        </div>
+                    </div>
+                    <div class="book-details">
+                        <div class="book-title">Apple in China</div>
+                        <div class="book-author">Patrick McGee</div>
+                        <span class="book-genre">Nonfiction</span>
+                        <div class="book-meta">
+                            <span class="book-stars">★★★★★</span>
+                            <span class="book-date">Feb 2026</span>
+                        </div>
+                        <p class="book-blurb">
+                            This is an outstanding account of how Apple transformed an entire labor class in China, how China has benefitted since, and why Apple is struggling to reduce its dependency on manufacturing in the country. Extremely well-researched and incredibly captivating, this a highly important book that's well worth the read.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Book: Retribution -->
+                <div class="book-card" data-genre="nonfiction" data-rating="4">
+                    <div class="book-cover-wrap">
+                        <img class="book-cover" src="assets/covers/retribution.jpeg" alt="Book Title cover"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="book-cover-placeholder" style="display:none;">
+                            <span class="cover-title">Retribution: Donald Trump and the Campaign that Changed America</span>
+                            <span class="cover-author">Jonathan Karl</span>
+                        </div>
+                    </div>
+                    <div class="book-details">
+                        <div class="book-title">Retribution: Donald Trump and the Campaign that Changed America</div>
+                        <div class="book-author">Jonathan Karl</div>
+                        <span class="book-genre">Nonfiction</span>
+                        <div class="book-meta">
+                            <span class="book-stars">★★★★☆</span>
+                            <span class="book-date">Feb 2026</span>
+                        </div>
+                        <p class="book-blurb">This is an insightful journey through Trump's 2024 campaign. It's interesting to get a view of what Trump is like behind the scenes, and Karl provides this access. Much of this book was focused on the Biden campaign and the fallout after he dropped out, making the book a bit redundant to Jake Tapper's book, Original Sin. Still a fun book to read.</p>
+                    </div>
+                </div>
+
+                
+                <!-- Template for next book — duplicate and fill in -->
+                <!--
+                <div class="book-card" data-genre="genre-slug">
+                    <div class="book-cover-wrap">
+                        <img class="book-cover" src="assets/covers/book-slug.jpg" alt="Book Title cover"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="book-cover-placeholder" style="display:none;">
+                            <span class="cover-title">Book Title</span>
+                            <span class="cover-author">Author Name</span>
+                        </div>
+                    </div>
+                    <div class="book-details">
+                        <div class="book-title">Book Title</div>
+                        <div class="book-author">Author Name</div>
+                        <span class="book-genre">Genre</span>
+                        <div class="book-meta">
+                            <span class="book-stars">★★★★☆</span>
+                            <span class="book-date">Mon YYYY</span>
+                        </div>
+                        <p class="book-blurb">Your review here.</p>
+                    </div>
+                </div>
+                -->
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ CONTACT BAR ══════════════════════════════════════════ -->
+    <div id="contact-bar">
+        <span class="contact-label">contact me:</span>
+
+        <!-- Email (paper airplane) -->
+        <a class="contact-icon" href="mailto:adityabhalla714@gmail.com" title="adityabhalla714@gmail.com">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+        </a>
+
+        <!-- LinkedIn -->
+        <a class="contact-icon" href="https://linkedin.com/in/adityab01" target="_blank" title="LinkedIn">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <rect width="24" height="24" rx="3" fill="currentColor"/>
+                <text x="4" y="18" font-family="Georgia, serif" font-weight="700" font-size="13" fill="white">in</text>
+            </svg>
+        </a>
+    </div>
+
+    <script>
+        /* ── Paint flecks ──────────────────────────────────────── */
+        const canvas = document.getElementById('flecks');
+        const ctx    = canvas.getContext('2d');
+
+        const FLECK_COLORS = [
+            'rgba(220,  40,  40, 0.82)',   // red
+            'rgba( 40, 160,  60, 0.78)',   // green
+            'rgba(230, 148,   0, 0.84)',   // golden yellow
+            'rgba( 30,  80, 220, 0.76)',   // blue
+            'rgba(190,  30, 170, 0.78)',   // magenta
+            'rgba(225,  85,  10, 0.82)',   // orange
+            'rgba(  0, 165, 155, 0.76)',   // teal
+        ];
+
+        function resizeCanvas() {
+            canvas.width  = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        // Seeded random so flecks don't shift on resize
+        function makeRng(seed) {
+            let s = seed;
+            return function() {
+                s = (s * 16807) % 2147483647;
+                return (s - 1) / 2147483646;
+            };
+        }
+
+        function drawFlecks() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const rand = makeRng(137);
+
+            for (let i = 0; i < 320; i++) {
+                const x     = rand() * canvas.width;
+                const y     = rand() * canvas.height;
+                const r     = rand() * 2.2 + 0.8;
+                const color = FLECK_COLORS[Math.floor(rand() * FLECK_COLORS.length)];
+                const stretch = 0.2 + rand() * 0.9;
+                const angle   = rand() * Math.PI;
+
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(angle);
+                ctx.beginPath();
+                ctx.ellipse(0, 0, r, r * stretch, 0, 0, Math.PI * 2);
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        resizeCanvas();
+        drawFlecks();
+        window.addEventListener('resize', () => { resizeCanvas(); drawFlecks(); });
+
+        // Fade out while scrolling, ease back in when stopped
+        let scrollTimer = null;
+        let baseOpacity = 1; // 1 on landing, 0.4 on subpages
+
+        window.addEventListener('scroll', () => {
+            canvas.style.transition = 'opacity 0.15s ease';
+            canvas.style.opacity = 0.1;
+
+            clearTimeout(scrollTimer);
+            scrollTimer = setTimeout(() => {
+                canvas.style.transition = 'opacity 0.4s ease';
+                canvas.style.opacity = baseOpacity;
+            }, 500);
+        }, { passive: true });
+
+        /* ── Section navigation (hash-based routing) ──────────── */
+        const landing = document.getElementById('landing');
+
+        const SECTIONS = ['about', 'projects', 'books', 'writing'];
+
+        function showSection(id, pushState = true) {
+            if (pushState) history.pushState({ page: id }, '', '#' + id);
+
+            landing.style.transition = 'opacity 0.3s ease';
+            landing.style.opacity    = '0';
+
+            setTimeout(() => {
+                landing.style.display = 'none';
+
+                SECTIONS.forEach(s => {
+                    const el = document.getElementById(s);
+                    if (s === id) {
+                        el.classList.add('active');
+                        requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('visible')));
+                    } else {
+                        el.classList.remove('visible', 'active');
+                    }
+                });
+
+                baseOpacity = 0.4;
+                canvas.style.transition = 'opacity 0.4s ease';
+                canvas.style.opacity = 0.4;
+                window.scrollTo(0, 0);
+            }, 300);
+        }
+
+        function showLanding(pushState = true) {
+            if (pushState) history.pushState({ page: 'landing' }, '', '#');
+
+            SECTIONS.forEach(s => {
+                const el = document.getElementById(s);
+                el.classList.remove('visible');
+                setTimeout(() => el.classList.remove('active'), 350);
+            });
+
+            landing.style.display    = 'flex';
+            landing.style.opacity    = '0';
+            landing.style.transition = 'opacity 0.35s ease';
+
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                landing.style.opacity = '1';
+            }));
+
+            baseOpacity = 1;
+            canvas.style.transition = 'opacity 0.4s ease';
+            canvas.style.opacity = 1;
+            window.scrollTo(0, 0);
+        }
+
+        // Handle browser back/forward
+        window.addEventListener('popstate', e => {
+            const hash = window.location.hash.replace('#', '');
+            if (hash && SECTIONS.includes(hash)) {
+                showSection(hash, false);
+            } else {
+                showLanding(false);
+            }
+        });
+
+        /* ── Typewriter animation ──────────────────────────────── */
+        const headingText = document.getElementById('headingText');
+        const cursor      = document.getElementById('cursor');
+        const divider     = document.getElementById('divider');
+        const bullets     = document.querySelectorAll('.bullet');
+
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+        async function typeText(text, el, baseDelay = 92) {
+            for (const ch of text) {
+                el.textContent += ch;
+                let delay = baseDelay + (Math.random() * 55 - 22);
+                if (ch === ' ')  delay += 75;
+                if (ch === ',')  delay += 110;
+                if (ch === "'")  delay += 35;
+                await sleep(delay);
+            }
+        }
+
+        function showLandingInstant() {
+            headingText.textContent = "Hi, I'm Adi";
+            cursor.style.display    = 'none';
+            divider.classList.add('show');
+            bullets.forEach(b => b.classList.add('show'));
+        }
+
+        async function runTypewriter() {
+            await sleep(400);
+            await typeText("Hi, I'm Adi", headingText);
+
+            await sleep(850);
+            cursor.style.animation  = 'none';
+            cursor.style.opacity    = '0';
+            cursor.style.transition = 'opacity 0.3s ease';
+
+            await sleep(100);
+            divider.classList.add('show');
+            await sleep(320);
+
+            for (const b of bullets) {
+                b.classList.add('show');
+                await sleep(280);
+            }
+        }
+
+        // On load: check hash and navigate directly, or run typewriter
+        const initialHash = window.location.hash.replace('#', '');
+        if (initialHash && SECTIONS.includes(initialHash)) {
+            showLandingInstant();
+            showSection(initialHash, false);
+        } else {
+            history.replaceState({ page: 'landing' }, '', window.location.pathname);
+            runTypewriter();
+        }
+
+        /* ── Book filtering (genre + rating) ──────────────────── */
+        function buildBookFilters() {
+            const cards = document.querySelectorAll('#booksGrid .book-card');
+            const genreFilters = document.getElementById('genreFilters');
+
+            let activeGenre  = 'all';
+            let activeRating = 'all';
+
+            // Auto-build genre buttons from card data
+            const genres = new Set();
+            cards.forEach(c => { if (c.dataset.genre) genres.add(c.dataset.genre); });
+            genres.forEach(genre => {
+                const btn = document.createElement('button');
+                btn.className = 'genre-btn';
+                btn.dataset.genre = genre;
+                btn.textContent = genre.charAt(0).toUpperCase() + genre.slice(1);
+                genreFilters.appendChild(btn);
+            });
+
+            function applyFilters() {
+                cards.forEach(card => {
+                    const genreMatch  = activeGenre  === 'all' || card.dataset.genre  === activeGenre;
+                    const ratingMatch = activeRating === 'all' || card.dataset.rating === activeRating;
+                    card.style.display = (genreMatch && ratingMatch) ? 'flex' : 'none';
+                });
+            }
+
+            genreFilters.addEventListener('click', e => {
+                const btn = e.target.closest('.genre-btn');
+                if (!btn || !btn.dataset.genre) return;
+                genreFilters.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeGenre = btn.dataset.genre;
+                applyFilters();
+            });
+
+            const ratingAllBtn = document.getElementById('ratingAllBtn');
+            const ratingSelect = document.getElementById('ratingFilter');
+
+            ratingAllBtn.addEventListener('click', () => {
+                activeRating = 'all';
+                ratingAllBtn.classList.add('active');
+                ratingSelect.value = '';
+                applyFilters();
+            });
+
+            ratingSelect.addEventListener('change', e => {
+                activeRating = e.target.value;
+                ratingAllBtn.classList.remove('active');
+                applyFilters();
+            });
+        }
+
+        buildBookFilters();
+    </script>
+
+    <!-- Photo lightbox overlay (must be in DOM before the script below runs) -->
+    <div id="lightbox">
+        <img id="lightbox-img" src="" alt="">
+    </div>
+
+    <script>
+        // ── Photo lightbox ────────────────────────────────────────
+        const lightbox   = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+
+        document.querySelectorAll('.collage-photo').forEach(photo => {
+            photo.style.cursor = 'zoom-in';
+            photo.addEventListener('click', () => {
+                lightboxImg.src = photo.src;
+                lightboxImg.alt = photo.alt;
+                lightbox.style.display = 'flex';
+                // Small delay so the transition fires after display:flex is painted
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    lightbox.classList.add('open');
+                }));
+            });
+        });
+
+        lightbox.addEventListener('click', e => {
+            if (e.target === lightbox) closeLightbox();
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeLightbox();
+        });
+
+        function closeLightbox() {
+            lightbox.classList.remove('open');
+            lightbox.addEventListener('transitionend', () => {
+                lightbox.style.display = 'none';
+            }, { once: true });
+        }
+    </script>
+
+</body>
+</html>
