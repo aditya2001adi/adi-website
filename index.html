@@ -1057,7 +1057,10 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             const rand = makeRng(137);
 
-            for (let i = 0; i < 320; i++) {
+            const DENSITY    = 320 / (1440 * 900);
+            const rawCount   = Math.round(DENSITY * canvas.width * canvas.height);
+            const fleckCount = Math.max(40, Math.min(rawCount, 420));
+            for (let i = 0; i < fleckCount; i++) {
                 const x     = rand() * canvas.width;
                 const y     = rand() * canvas.height;
                 const r     = rand() * 2.2 + 0.8;
