@@ -694,6 +694,11 @@
             display: block;
         }
 
+        /* ── Mobile contact footer ───────────────────────────────── */
+        #mobile-contact {
+            display: none;
+        }
+
         /* ── Responsive ──────────────────────────────────────────── */
         @media (max-width: 720px) {
             .landing-inner { padding: 36px 36px; }
@@ -701,6 +706,17 @@
             .bullet-label   { font-size: 26px; }
             .section-inner  { padding: 0 36px; }
             .section-title  { font-size: 34px; }
+
+            #contact-bar    { display: none; }
+
+            #mobile-contact {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 28px 0 16px 0;
+                margin-top: 36px;
+                border-top: 1px solid rgba(143, 164, 194, 0.3);
+            }
         }
 
     </style>
@@ -970,6 +986,23 @@
         </div>
     </div>
 
+    <!-- ══ MOBILE CONTACT FOOTER (moved by JS into active section) ══ -->
+    <div id="mobile-contact">
+        <span class="contact-label">contact me:</span>
+        <a class="contact-icon" href="mailto:adityabhalla714@gmail.com" title="adityabhalla714@gmail.com">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+        </a>
+        <a class="contact-icon" href="https://linkedin.com/in/adityab01" target="_blank" title="LinkedIn">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <rect width="24" height="24" rx="3" fill="currentColor"/>
+                <text x="4" y="18" font-family="Georgia, serif" font-weight="700" font-size="13" fill="white">in</text>
+            </svg>
+        </a>
+    </div>
+
     <!-- ══ CONTACT BAR ══════════════════════════════════════════ -->
     <div id="contact-bar">
         <span class="contact-label">contact me:</span>
@@ -1067,6 +1100,11 @@
 
         const SECTIONS = ['about', 'projects', 'books', 'writing'];
 
+        function moveMobileContact(targetEl) {
+            const mc = document.getElementById('mobile-contact');
+            if (mc) targetEl.appendChild(mc);
+        }
+
         function showSection(id, pushState = true) {
             if (pushState) history.pushState({ page: id }, '', '#' + id);
 
@@ -1081,6 +1119,7 @@
                     if (s === id) {
                         el.classList.add('active');
                         requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('visible')));
+                        moveMobileContact(el.querySelector('.section-inner'));
                     } else {
                         el.classList.remove('visible', 'active');
                     }
@@ -1109,6 +1148,8 @@
             requestAnimationFrame(() => requestAnimationFrame(() => {
                 landing.style.opacity = '1';
             }));
+
+            moveMobileContact(landing.querySelector('.landing-inner'));
 
             baseOpacity = 1;
             canvas.style.transition = 'opacity 0.4s ease';
@@ -1178,6 +1219,7 @@
             showSection(initialHash, false);
         } else {
             history.replaceState({ page: 'landing' }, '', window.location.pathname);
+            moveMobileContact(landing.querySelector('.landing-inner'));
             runTypewriter();
         }
 
