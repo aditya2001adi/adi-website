@@ -368,30 +368,62 @@
             letter-spacing: 0.02em;
         }
 
+        .books-hint {
+            font-size: 13px;
+            color: #8fa4c2;
+            font-style: italic;
+            margin: 10px 0 24px;
+            letter-spacing: 0.02em;
+        }
+
         .books-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 44px;
-            max-width: 680px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 16px;
         }
 
         .book-card {
             display: flex;
-            gap: 28px;
-            align-items: flex-start;
+            flex-direction: column;
+            position: relative;
             background: rgba(143, 164, 194, 0.12);
             border: 1px solid rgba(143, 164, 194, 0.30);
             border-radius: 10px;
-            padding: 20px 22px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
 
+        .book-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 22px rgba(30,58,95,0.15);
+        }
+
+        .book-card::after {
+            content: 'Click to read a brief review';
+            position: absolute;
+            inset: 0;
+            background: rgba(30,58,95,0.72);
+            color: #faf7f2;
+            font-size: 11px;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 16px;
+            line-height: 1.6;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+
+        .book-card:hover::after { opacity: 1; }
+
         .book-cover-wrap {
-            width: 100px;
-            flex-shrink: 0;
+            width: 100%;
             aspect-ratio: 2 / 3;
-            border-radius: 3px;
             overflow: hidden;
-            box-shadow: 2px 3px 10px rgba(30,58,95,0.12);
         }
 
         .book-cover {
@@ -428,35 +460,38 @@
         }
 
         .book-details {
-            flex: 1;
-            padding-top: 2px;
+            padding: 10px 11px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
         .book-title {
-            font-size: 17px;
+            font-size: 12px;
             font-weight: 700;
-            line-height: 1.3;
-            margin-bottom: 3px;
+            line-height: 1.35;
+            color: #1e3a5f;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
-        .book-author {
-            font-size: 14px;
-            font-style: italic;
-            color: #6a7f98;
-            margin-bottom: 10px;
-        }
+        /* genre and blurb hidden in tile — shown in modal */
+        .book-card .book-genre,
+        .book-card .book-blurb { display: none; }
 
         .book-meta {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
+            gap: 8px;
         }
 
         .book-stars {
             color: #c4a45a;
-            font-size: 14px;
-            letter-spacing: 1.5px;
+            font-size: 11px;
+            letter-spacing: 1px;
         }
 
         .book-date {
@@ -471,6 +506,12 @@
             color: #3a5070;
         }
 
+        .book-author {
+            font-size: 11px;
+            font-style: italic;
+            color: #6a7f98;
+        }
+
         .book-genre {
             display: inline-block;
             font-size: 11px;
@@ -481,7 +522,103 @@
             border: 1px solid #c0cfe0;
             border-radius: 20px;
             padding: 2px 9px;
-            margin-bottom: 10px;
+        }
+
+        /* ══ Book Review Modal ════════════════════════════════════ */
+        .book-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(20,40,70,0.50);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .book-modal-overlay.open { opacity: 1; }
+
+        .book-modal {
+            background: #faf7f2;
+            border: 1px solid rgba(143,164,194,0.35);
+            border-radius: 14px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 28px;
+            display: flex;
+            gap: 22px;
+            align-items: flex-start;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(20,40,70,0.25);
+        }
+
+        .book-modal-cover {
+            width: 100px;
+            flex-shrink: 0;
+            aspect-ratio: 2 / 3;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 2px 3px 12px rgba(30,58,95,0.15);
+        }
+
+        .book-modal-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .book-modal-content { flex: 1; }
+
+        .book-modal-close {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #8fa4c2;
+            cursor: pointer;
+            line-height: 1;
+            padding: 4px 6px;
+            font-family: inherit;
+        }
+
+        .book-modal-close:hover { color: #1e3a5f; }
+
+        .book-modal-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e3a5f;
+            line-height: 1.35;
+            margin-bottom: 4px;
+            padding-right: 24px;
+        }
+
+        .book-modal-author {
+            font-size: 13px;
+            font-style: italic;
+            color: #6a7f98;
+            margin-bottom: 12px;
+        }
+
+        .book-modal-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+
+        .book-modal-blurb {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #3a5070;
         }
 
         /* ══════════════════════════════════════════════════════════
@@ -660,8 +797,9 @@
         }
 
         @media (max-width: 480px) {
-            .book-card { flex-direction: column; }
-            .book-cover-wrap { width: 80px; }
+            .books-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+            .book-modal { flex-direction: column; }
+            .book-modal-cover { width: 80px; }
         }
 
         /* ── Contact bar ─────────────────────────────────────────── */
@@ -881,7 +1019,37 @@
                 </div>
             </div>
 
+            <p class="books-hint">Click any book tile to read a brief review</p>
+
             <div class="books-grid" id="booksGrid">
+
+                <!-- Book: The Singularity is Nearer -->
+                <div class="book-card" data-genre="nonfiction" data-rating="2">
+                    <div class="book-cover-wrap">
+                        <img
+                            class="book-cover"
+                            src="assets/covers/singularity.jpg"
+                            alt="The Singularity is Nearer cover"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                        >
+                        <div class="book-cover-placeholder" style="display:none;">
+                            <span class="cover-title">The Singularity is Nearer: When We Merge with AI</span>
+                            <span class="cover-author">Ray Kurzweil</span>
+                        </div>
+                    </div>
+                    <div class="book-details">
+                        <div class="book-title">The Singularity is Nearer: When We Merge with AI</div>
+                        <div class="book-author">Ray Kurzweil</div>
+                        <span class="book-date">April 2026</span>
+                        <span class="book-genre">Nonfiction</span>
+                        <div class="book-meta">
+                            <span class="book-stars">★★☆☆☆</span>
+                        </div>
+                        <p class="book-blurb">
+                            I can appreciate Kurzweil's enthusiasm for AI, and I mostly believe him when he says that the pace at which human capability will now grow. But the book spends a significant amount of time discussing how life has gotten exponentially better in the last century and how it will continue to get much better due to AI. Then, Kurzweil spends only a few pages discussing the dangers of AI as they pertain to nuclear weapons, biotechnology, and superintelligence. <br><br>This made the book feel less intellecutally honest about the pros and cons of AI than I was hoping. Also, Kurzweil's prediction that in the next 15 years or so we'll be injecting nanobots into our bloodstreams to connect our brains to the cloud is, well, a bit freaky.
+                        </p>
+                    </div>
+                </div>
 
                 <!-- Book: Betrayal -->
                 <div class="book-card" data-genre="thriller" data-rating="4">
@@ -900,10 +1068,10 @@
                     <div class="book-details">
                         <div class="book-title">Betrayal</div>
                         <div class="book-author">Omar Shahid Hamid</div>
+                        <span class="book-date">March 2026</span>
                         <span class="book-genre">Thriller</span>
                         <div class="book-meta">
                             <span class="book-stars">★★★★☆</span>
-                            <span class="book-date">March 2026</span>
                         </div>
                         <p class="book-blurb">
                             A pretty heartbreaking love story wrapped up in a mystery thriller. The slow start made this take a little while to get into, but it became a fun read. Shorter novel that, once I was invested, was challenging to put down.
@@ -929,10 +1097,10 @@
                     <div class="book-details">
                         <div class="book-title">Apple in China</div>
                         <div class="book-author">Patrick McGee</div>
+                        <span class="book-date">Feb 2026</span>
                         <span class="book-genre">Nonfiction</span>
                         <div class="book-meta">
                             <span class="book-stars">★★★★★</span>
-                            <span class="book-date">Feb 2026</span>
                         </div>
                         <p class="book-blurb">
                             This is an outstanding account of how Apple transformed an entire labor class in China, how China has benefitted since, and why Apple is struggling to reduce its dependency on manufacturing in the country. Extremely well-researched and incredibly captivating, this a highly important book that's well worth the read.
@@ -953,10 +1121,10 @@
                     <div class="book-details">
                         <div class="book-title">Retribution: Donald Trump and the Campaign that Changed America</div>
                         <div class="book-author">Jonathan Karl</div>
+                        <span class="book-date">Feb 2026</span>
                         <span class="book-genre">Nonfiction</span>
                         <div class="book-meta">
                             <span class="book-stars">★★★★☆</span>
-                            <span class="book-date">Feb 2026</span>
                         </div>
                         <p class="book-blurb">This is an insightful journey through Trump's 2024 campaign. It's interesting to get a view of what Trump is like behind the scenes, and Karl provides this access. Much of this book was focused on the Biden campaign and the fallout after he dropped out, making the book a bit redundant to Jake Tapper's book, Original Sin. Still a fun book to read.</p>
                     </div>
@@ -1285,7 +1453,74 @@
         }
 
         buildBookFilters();
+
+        /* ── Book review modal ────────────────────────────────── */
+        function openBookModal(card) {
+            const img    = card.querySelector('.book-cover');
+            const title  = card.querySelector('.book-title').textContent.trim();
+            const author = card.querySelector('.book-author').textContent.trim();
+            const genre  = card.querySelector('.book-genre').textContent.trim();
+            const stars  = card.querySelector('.book-stars').textContent.trim();
+            const date   = card.querySelector('.book-date').textContent.trim();
+            const blurb  = card.querySelector('.book-blurb').innerHTML.trim();
+
+            document.getElementById('modalCoverImg').src = img ? img.src : '';
+            document.getElementById('modalCoverImg').alt = img ? img.alt : '';
+            document.getElementById('modalTitle').textContent  = title;
+            document.getElementById('modalAuthor').textContent = author;
+            document.getElementById('modalGenre').textContent  = genre;
+            document.getElementById('modalStars').textContent  = stars;
+            document.getElementById('modalDate').textContent   = date;
+            document.getElementById('modalBlurb').innerHTML  = blurb;
+
+            const modal = document.getElementById('bookModal');
+            modal.style.display = 'flex';
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                modal.classList.add('open');
+            }));
+        }
+
+        function closeBookModal(e) {
+            const modal = document.getElementById('bookModal');
+            if (e && e.target !== modal) return;
+            modal.style.display = 'none';
+            modal.classList.remove('open');
+        }
+
+        document.querySelectorAll('#booksGrid .book-card').forEach(card => {
+            card.addEventListener('click', () => openBookModal(card));
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('bookModal');
+                if (modal.style.display === 'flex') {
+                    modal.style.display = 'none';
+                    modal.classList.remove('open');
+                }
+            }
+        });
     </script>
+
+    <!-- Book review modal -->
+    <div id="bookModal" class="book-modal-overlay" onclick="closeBookModal(event)">
+        <div class="book-modal" onclick="event.stopPropagation()">
+            <button class="book-modal-close" onclick="closeBookModal()">✕</button>
+            <div class="book-modal-cover">
+                <img id="modalCoverImg" src="" alt="">
+            </div>
+            <div class="book-modal-content">
+                <div id="modalTitle" class="book-modal-title"></div>
+                <div id="modalAuthor" class="book-modal-author"></div>
+                <div class="book-modal-meta">
+                    <span id="modalGenre" class="book-genre"></span>
+                    <span id="modalStars" class="book-stars"></span>
+                    <span id="modalDate" class="book-date"></span>
+                </div>
+                <p id="modalBlurb" class="book-modal-blurb"></p>
+            </div>
+        </div>
+    </div>
 
     <!-- Photo lightbox overlay (must be in DOM before the script below runs) -->
     <div id="lightbox">
