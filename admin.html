@@ -505,6 +505,41 @@
     return override || currentCoverUrl;
   }
 
+  function titleSlug(title) {
+    return title.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+  }
+
+  async function fetchImageBase64(url) {
+    const res   = await fetch(url);
+    if (!res.ok) throw new Error(`Image download failed (${res.status})`);
+    const buf   = await res.arrayBuffer();
+    const bytes = new Uint8Array(buf);
+    let binary  = '';
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary);
+  }
+
+  async function putImageFile(path, base64, message) {
+    let sha;
+    try {
+      const check = await fetch(
+        `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}?ref=${BRANCH}`,
+        { headers: ghHeaders() }
+      );
+      if (check.ok) sha = (await check.json()).sha;
+    } catch (_) {}
+    const body = { message, content: base64, branch: BRANCH };
+    if (sha) body.sha = sha;
+    const res = await fetch(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`,
+      { method: 'PUT', headers: ghHeaders(), body: JSON.stringify(body) }
+    );
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(`Cover upload failed: ${err.message}`);
+    }
+  }
+
 
   // ── HTML generation ───────────────────────────────────────────────────────
   // Builds the exact book-card HTML that index.html expects.
@@ -638,8 +673,22 @@
     clearStatus();
 
     try {
+      // Download the cover and commit it to assets/covers/ so it's always available locally
+      let finalCoverSrc = coverUrl;
+      if (coverUrl) {
+        try {
+          btn.textContent = 'Saving cover…';
+          const imgPath = `assets/covers/${titleSlug(title)}.jpg`;
+          await putImageFile(imgPath, await fetchImageBase64(coverUrl), `Add cover: ${title}`);
+          finalCoverSrc = imgPath;
+        } catch (imgErr) {
+          console.warn('Cover download failed, falling back to external URL:', imgErr);
+        }
+        btn.textContent = 'Publishing…';
+      }
+
       const { content, sha } = await getFile('index.html');
-      const cardHTML         = buildCardHTML({ title, author, genreSlug, genreLabel, stars, month, year, review, coverUrl });
+      const cardHTML         = buildCardHTML({ title, author, genreSlug, genreLabel, stars, month, year, review, coverUrl: finalCoverSrc });
       const updated          = insertCard(content, cardHTML);
       await putFile('index.html', updated, sha, `Add book: ${title}`);
 
