@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Book — adibhalla.com</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:     #faf7f2;
+      --navy:   #1e3a5f;
+      --body:   #2a4060;
+      --accent: #8fa4c2;
+      --border: #d0d8e4;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--navy);
+      font-family: 'Libre Baskerville', serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 48px 24px 80px;
+    }
+
+    .container { width: 100%; max-width: 540px; }
+
+    h1 { font-size: 1.25rem; font-weight: 700; margin-bottom: 4px; }
+    .subtitle { font-size: 0.8rem; color: var(--accent); font-style: italic; margin-bottom: 40px; }
+
+    /* ── Screens ── */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── Form elements ── */
+    label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="url"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      background: white;
+      color: var(--navy);
+      font-family: 'Libre Baskerville', serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.15s;
+      appearance: none;
+    }
+
+    input:focus, select:focus, textarea:focus { border-color: var(--navy); }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238fa4c2' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+      cursor: pointer;
+    }
+
+    textarea { resize: vertical; min-height: 150px; line-height: 1.65; }
+
+    .field { margin-bottom: 22px; }
+
+    .field-hint {
+      font-size: 0.73rem;
+      color: var(--accent);
+      font-style: italic;
+      margin-top: 5px;
+    }
+
+    .row { display: grid; gap: 16px; }
+    .row-2 { grid-template-columns: 1fr 1fr; }
+
+    /* ── Cover preview ── */
+    .cover-loading {
+      font-size: 0.82rem;
+      color: var(--accent);
+      font-style: italic;
+      margin-bottom: 22px;
+      display: none;
+    }
+    .cover-loading.visible { display: block; }
+
+    .cover-preview {
+      display: none;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 22px;
+      padding: 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      background: white;
+    }
+    .cover-preview.visible { display: flex; }
+
+    .cover-img-wrap img {
+      width: 72px;
+      height: 104px;
+      object-fit: cover;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      display: block;
+    }
+    .cover-img-wrap .no-cover {
+      width: 72px;
+      height: 104px;
+      border: 1.5px dashed var(--border);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: var(--accent);
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .cover-meta { flex: 1; }
+    .cover-status {
+      font-size: 0.78rem;
+      color: var(--accent);
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+    .cover-meta label { margin-bottom: 5px; }
+    .cover-meta input { font-size: 0.82rem; padding: 7px 10px; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-block;
+      background: var(--navy);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      font-family: 'Libre Baskerville', serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.82; }
+    .btn:disabled { opacity: 0.38; cursor: not-allowed; }
+
+    /* ── Token bar ── */
+    .token-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .token-bar-label { font-size: 0.76rem; color: var(--accent); font-style: italic; }
+    .token-reset {
+      font-size: 0.76rem;
+      color: var(--accent);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      text-decoration: underline;
+      padding: 0;
+    }
+    .token-reset:hover { color: var(--navy); }
+
+    /* ── Status messages ── */
+    .status-msg {
+      margin-top: 18px;
+      padding: 13px 16px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      line-height: 1.55;
+      display: none;
+    }
+    .status-msg.visible { display: block; }
+    .status-msg.success { background: #eef5e8; color: #2d5a1b; border: 1px solid #b8d9a0; }
+    .status-msg.error   { background: #fdf0f0; color: #8b1a1a; border: 1px solid #f0b8b8; }
+
+    /* ── Token setup screen prose ── */
+    .setup-prose {
+      font-size: 0.9rem;
+      color: var(--body);
+      line-height: 1.75;
+      margin-bottom: 28px;
+    }
+    .setup-prose code {
+      font-family: monospace;
+      background: #eee;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.85rem;
+    }
+    .setup-prose a { color: var(--navy); }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <h1>Add a Book</h1>
+  <p class="subtitle">adibhalla.com / admin</p>
+
+  <!-- ────────────────────────────────────────────────────────────────────────
+       TOKEN SETUP SCREEN
+       Shown on first visit. The token is saved to localStorage so this
+       screen only appears once per device.
+  ──────────────────────────────────────────────────────────────────────────── -->
+  <div class="screen" id="tokenScreen">
+    <p class="setup-prose">
+      This tool commits directly to your GitHub repo — no server needed.
+      To get started, create a
+      <a href="https://github.com/settings/tokens/new?scopes=repo&description=adi-website+book+admin" target="_blank">
+        GitHub Personal Access Token
+      </a>
+      with <code>repo</code> scope, then paste it below.
+      It'll be saved in this browser — you won't need to enter it again on this device.
+    </p>
+    <div class="field">
+      <label for="tokenInput">GitHub Token</label>
+      <input type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+    </div>
+    <button class="btn" onclick="saveToken()">Save & Continue</button>
+  </div>
+
+  <!-- ────────────────────────────────────────────────────────────────────────
+       BOOK FORM SCREEN
+  ──────────────────────────────────────────────────────────────────────────── -->
+  <div class="screen" id="formScreen">
+
+    <div class="token-bar">
+      <span class="token-bar-label">GitHub token saved ✓</span>
+      <button class="token-reset" onclick="resetToken()">reset token</button>
+    </div>
+
+    <!-- Title + Author trigger the cover auto-fetch -->
+    <div class="field">
+      <label for="title">Title</label>
+      <input type="text" id="title" placeholder="e.g. Hillbilly Elegy" oninput="scheduleCoverFetch()">
+    </div>
+
+    <div class="field">
+      <label for="author">Author</label>
+      <input type="text" id="author" placeholder="e.g. J.D. Vance" oninput="scheduleCoverFetch()">
+    </div>
+
+    <!-- Genre + Stars on one row, Month + Year on the next -->
+    <div class="row row-2">
+      <div class="field">
+        <label for="genre">Genre</label>
+        <select id="genre" onchange="handleGenreChange()">
+          <option value="">— select —</option>
+          <option value="nonfiction">Nonfiction</option>
+          <option value="thriller">Thriller</option>
+          <option value="__new__">+ New genre…</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="stars">Rating</label>
+        <select id="stars">
+          <option value="">— select —</option>
+          <option value="5">★★★★★  (5/5)</option>
+          <option value="4">★★★★☆  (4/5)</option>
+          <option value="3">★★★☆☆  (3/5)</option>
+          <option value="2">★★☆☆☆  (2/5)</option>
+          <option value="1">★☆☆☆☆  (1/5)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- New genre text field — only shown when "+ New genre…" is selected -->
+    <div class="field" id="newGenreField" style="display:none; margin-top:-10px;">
+      <label for="newGenreInput">Genre name</label>
+      <input type="text" id="newGenreInput" placeholder="e.g. Memoir">
+      <p class="field-hint">Spaces become hyphens in the filter (e.g. "Science Fiction" → science-fiction)</p>
+    </div>
+
+    <div class="row row-2">
+      <div class="field">
+        <label for="month">Month read</label>
+        <select id="month">
+          <option value="">— select —</option>
+          <option>Jan</option><option>Feb</option><option>Mar</option>
+          <option>Apr</option><option>May</option><option>Jun</option>
+          <option>Jul</option><option>Aug</option><option>Sep</option>
+          <option>Oct</option><option>Nov</option><option>Dec</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="year">Year</label>
+        <select id="year"></select>
+      </div>
+    </div>
+
+    <!-- Cover preview — appears automatically once title + author are filled -->
+    <div class="cover-loading" id="coverLoading">Looking up cover…</div>
+
+    <div class="cover-preview" id="coverPreview">
+      <div class="cover-img-wrap" id="coverImgWrap"></div>
+      <div class="cover-meta">
+        <p class="cover-status" id="coverStatus"></p>
+        <div>
+          <label for="coverUrl">Override cover URL</label>
+          <input type="url" id="coverUrl" placeholder="https://…" oninput="overrideCover(this.value)">
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="review">Review</label>
+      <textarea id="review" placeholder="Your review here…"></textarea>
+    </div>
+
+    <button class="btn" id="submitBtn" onclick="addBook()">Add Book →</button>
+    <div class="status-msg" id="statusMsg"></div>
+
+  </div><!-- /formScreen -->
+</div><!-- /container -->
+
+<script>
+  const REPO_OWNER = 'aditya2001adi';
+  const REPO_NAME  = 'adi-website';
+  const BRANCH     = 'main';
+
+  // ── Initialise ────────────────────────────────────────────────────────────
+  // On load: populate year dropdown, then decide which screen to show.
+
+  (function init() {
+    const yearSel  = document.getElementById('year');
+    const thisYear = new Date().getFullYear();
+    for (let y = thisYear; y >= thisYear - 3; y--) {
+      const opt = document.createElement('option');
+      opt.value = opt.textContent = y;
+      if (y === thisYear) opt.selected = true;
+      yearSel.appendChild(opt);
+    }
+
+    const hasToken = !!localStorage.getItem('gh_token');
+    document.getElementById('tokenScreen').classList.toggle('active', !hasToken);
+    document.getElementById('formScreen').classList.toggle('active', hasToken);
+  })();
+
+
+  // ── Token management ──────────────────────────────────────────────────────
+
+  function saveToken() {
+    const val = document.getElementById('tokenInput').value.trim();
+    if (!val) return;
+    localStorage.setItem('gh_token', val);
+    document.getElementById('tokenScreen').classList.remove('active');
+    document.getElementById('formScreen').classList.add('active');
+  }
+
+  function resetToken() {
+    localStorage.removeItem('gh_token');
+    document.getElementById('formScreen').classList.remove('active');
+    document.getElementById('tokenScreen').classList.add('active');
+    document.getElementById('tokenInput').value = '';
+  }
+
+
+  // ── Genre handling ────────────────────────────────────────────────────────
+
+  function handleGenreChange() {
+    const isNew = document.getElementById('genre').value === '__new__';
+    document.getElementById('newGenreField').style.display = isNew ? 'block' : 'none';
+  }
+
+  function getGenreSlug() {
+    const sel = document.getElementById('genre').value;
+    if (!sel || sel === '__new__') {
+      const raw = document.getElementById('newGenreInput').value.trim();
+      return raw.toLowerCase().replace(/\s+/g, '-');
+    }
+    return sel;
+  }
+
+  function getGenreLabel() {
+    const sel = document.getElementById('genre').value;
+    if (!sel || sel === '__new__') {
+      const raw = document.getElementById('newGenreInput').value.trim();
+      return raw.charAt(0).toUpperCase() + raw.slice(1);
+    }
+    return sel.charAt(0).toUpperCase() + sel.slice(1);
+  }
+
+
+  // ── Cover auto-fetch ──────────────────────────────────────────────────────
+  // Fires 700ms after you stop typing in either the title or author field.
+  // Uses Open Library's free search API — no key required.
+
+  let coverTimer   = null;
+  let currentCoverUrl = '';
+
+  function scheduleCoverFetch() {
+    clearTimeout(coverTimer);
+    const title  = document.getElementById('title').value.trim();
+    const author = document.getElementById('author').value.trim();
+    if (!title || !author) return;
+    coverTimer = setTimeout(() => fetchCover(title, author), 700);
+  }
+
+  async function fetchCover(title, author) {
+    document.getElementById('coverLoading').classList.add('visible');
+    document.getElementById('coverPreview').classList.remove('visible');
+    currentCoverUrl = '';
+
+    try {
+      const res  = await fetch(
+        `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}&limit=1&fields=cover_i`
+      );
+      const data = await res.json();
+      const doc  = data.docs && data.docs[0];
+
+      if (doc && doc.cover_i) {
+        const url = `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`;
+        currentCoverUrl = url;
+        showCoverPreview(url, 'Cover found on Open Library');
+      } else {
+        showCoverPreview(null, 'No cover found — paste a URL above to add one manually');
+      }
+    } catch {
+      showCoverPreview(null, 'Cover lookup failed — paste a URL above if you have one');
+    } finally {
+      document.getElementById('coverLoading').classList.remove('visible');
+    }
+  }
+
+  function showCoverPreview(url, statusText) {
+    const wrap = document.getElementById('coverImgWrap');
+    document.getElementById('coverStatus').textContent = statusText;
+
+    if (url) {
+      wrap.innerHTML = `<img src="${url}" alt="Cover preview">`;
+    } else {
+      wrap.innerHTML = `<div class="no-cover">no cover</div>`;
+    }
+
+    document.getElementById('coverPreview').classList.add('visible');
+  }
+
+  function overrideCover(url) {
+    const wrap = document.getElementById('coverImgWrap');
+    if (url) {
+      currentCoverUrl = url;
+      wrap.innerHTML  = `<img src="${url}" alt="Cover preview">`;
+      document.getElementById('coverStatus').textContent = 'Using custom URL';
+      document.getElementById('coverPreview').classList.add('visible');
+    }
+  }
+
+  function getActiveCoverUrl() {
+    const override = document.getElementById('coverUrl').value.trim();
+    return override || currentCoverUrl;
+  }
+
+
+  // ── HTML generation ───────────────────────────────────────────────────────
+  // Builds the exact book-card HTML that index.html expects.
+
+  function esc(str) {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // Converts textarea line breaks into HTML paragraph breaks for the blurb.
+  function formatReview(text) {
+    return esc(text).replace(/\n\n+/g, '<br><br>').replace(/\n/g, ' ');
+  }
+
+  function starsString(n) {
+    return '★'.repeat(n) + '☆'.repeat(5 - n);
+  }
+
+  function buildCardHTML({ title, author, genreSlug, genreLabel, stars, month, year, review, coverUrl }) {
+    const starStr = starsString(parseInt(stars, 10));
+    const dateStr = `${month} ${year}`;
+    const src     = coverUrl || '';
+
+    return `
+                <!-- Book: ${esc(title)} -->
+                <div class="book-card" data-genre="${genreSlug}" data-rating="${stars}">
+                    <div class="book-cover-wrap">
+                        <img
+                            class="book-cover"
+                            src="${esc(src)}"
+                            alt="${esc(title)} cover"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                        >
+                        <div class="book-cover-placeholder" style="display:none;">
+                            <span class="cover-title">${esc(title)}</span>
+                            <span class="cover-author">${esc(author)}</span>
+                        </div>
+                    </div>
+                    <div class="book-details">
+                        <div class="book-title">${esc(title)}</div>
+                        <div class="book-author">${esc(author)}</div>
+                        <span class="book-date">${dateStr}</span>
+                        <span class="book-genre">${esc(genreLabel)}</span>
+                        <div class="book-meta">
+                            <span class="book-stars">${starStr}</span>
+                        </div>
+                        <p class="book-blurb">${formatReview(review)}</p>
+                    </div>
+                </div>`;
+  }
+
+  // Finds the opening <div> of #booksGrid and inserts the new card right after it,
+  // so the newest book always appears first.
+  function insertCard(html, cardHTML) {
+    const marker = '<div class="books-grid" id="booksGrid">';
+    const idx    = html.indexOf(marker);
+    if (idx === -1) throw new Error('Could not find #booksGrid in index.html — has the markup changed?');
+    const after  = idx + marker.length;
+    return html.slice(0, after) + '\n' + cardHTML + '\n' + html.slice(after);
+  }
+
+
+  // ── GitHub API helpers ────────────────────────────────────────────────────
+
+  function ghHeaders() {
+    return {
+      Authorization:  `token ${localStorage.getItem('gh_token')}`,
+      Accept:         'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+    };
+  }
+
+  async function getFile(path) {
+    const res = await fetch(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}?ref=${BRANCH}`,
+      { headers: ghHeaders() }
+    );
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(`Could not read ${path} from GitHub: ${err.message} (${res.status})`);
+    }
+    const data    = await res.json();
+    // GitHub returns the file as base64 with line-break padding — strip those before decoding.
+    // decodeURIComponent(escape(...)) handles UTF-8 characters safely.
+    const content = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
+    return { content, sha: data.sha };
+  }
+
+  async function putFile(path, content, sha, message) {
+    // btoa() only handles Latin1, so we encode UTF-8 via encodeURIComponent first.
+    const encoded = btoa(unescape(encodeURIComponent(content)));
+    const res     = await fetch(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`,
+      {
+        method:  'PUT',
+        headers: ghHeaders(),
+        body:    JSON.stringify({ message, content: encoded, sha, branch: BRANCH }),
+      }
+    );
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(`GitHub commit failed: ${err.message}`);
+    }
+  }
+
+
+  // ── Submit ────────────────────────────────────────────────────────────────
+
+  async function addBook() {
+    const title      = document.getElementById('title').value.trim();
+    const author     = document.getElementById('author').value.trim();
+    const genreSlug  = getGenreSlug();
+    const genreLabel = getGenreLabel();
+    const stars      = document.getElementById('stars').value;
+    const month      = document.getElementById('month').value;
+    const year       = document.getElementById('year').value;
+    const review     = document.getElementById('review').value.trim();
+    const coverUrl   = getActiveCoverUrl();
+
+    if (!title || !author || !genreSlug || !stars || !month || !year || !review) {
+      showStatus('error', 'Please fill in all fields before submitting.');
+      return;
+    }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled    = true;
+    btn.textContent = 'Publishing…';
+    clearStatus();
+
+    try {
+      const { content, sha } = await getFile('index.html');
+      const cardHTML         = buildCardHTML({ title, author, genreSlug, genreLabel, stars, month, year, review, coverUrl });
+      const updated          = insertCard(content, cardHTML);
+      await putFile('index.html', updated, sha, `Add book: ${title}`);
+
+      showStatus(
+        'success',
+        `✓ <strong>${esc(title)}</strong> added successfully. GitHub Pages updates in about 60 seconds. ` +
+        `<a href="https://adibhalla.com" target="_blank" style="color:inherit;">View live site →</a>`
+      );
+      resetForm();
+    } catch (err) {
+      showStatus('error', `Something went wrong: ${err.message}`);
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = 'Add Book →';
+    }
+  }
+
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  function resetForm() {
+    ['title', 'author', 'review', 'coverUrl', 'newGenreInput'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('genre').value = '';
+    document.getElementById('stars').value = '';
+    document.getElementById('month').value = '';
+    document.getElementById('newGenreField').style.display  = 'none';
+    document.getElementById('coverPreview').classList.remove('visible');
+    document.getElementById('coverLoading').classList.remove('visible');
+    currentCoverUrl = '';
+  }
+
+  function showStatus(type, html) {
+    const el       = document.getElementById('statusMsg');
+    el.className   = `status-msg ${type} visible`;
+    el.innerHTML   = html;
+  }
+
+  function clearStatus() {
+    document.getElementById('statusMsg').className = 'status-msg';
+    document.getElementById('statusMsg').innerHTML = '';
+  }
+</script>
+</body>
+</html>
